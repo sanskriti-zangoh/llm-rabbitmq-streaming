@@ -27,7 +27,7 @@ class RabbitMQProducer:
             self.connection = await connect(self.amqp_url)
             self.channel = await self.connection.channel()
 
-    async def publish(self, queue_name: str, message_content: json):
+    async def publish(self, queue_name: str, message_content: str):
         await self.connect()
         queue = await self.channel.declare_queue(queue_name)
         await self.channel.default_exchange.publish(
@@ -40,3 +40,10 @@ class RabbitMQProducer:
             await self.channel.close()
         if self.connection:
             await self.connection.close()
+
+
+producer = RabbitMQProducer()
+
+async def get_producer() -> RabbitMQProducer:
+    await producer.connect()
+    return producer
