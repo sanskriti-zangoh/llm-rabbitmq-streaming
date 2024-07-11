@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  end_user_service:
+    build: ./end_user_service
+    ports:
+      - "${ENDUSER_SERVICE_PORT}:5001"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=${RABBITMQ_QUEUE_PORT}
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./enduser_service:/app
+
+networks:
+  default:
+    external:
+      name: shared_rabbitmq_network

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  llm_service:
+    build: ./llm_service
+    ports:
+      - "${LLM_SERVICE_PORT}:5000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=${RABBITMQ_QUEUE_PORT}
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./llm_service:/app
+
+networks:
+  default:
+    external:
+      name: shared_rabbitmq_network
