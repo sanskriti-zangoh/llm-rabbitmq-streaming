@@ -27,3 +27,6 @@ my_handler = MyCustomHandler(streamer_queue)
   
 # Creating the llm object and providing the reference of the callback 
 llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=os.getenv("GOOGLE_API_KEY"), callbacks=[my_handler], streaming=True)
+
+def generate(query):  
+    llm.invoke([HumanMessage(content=query)]) 
