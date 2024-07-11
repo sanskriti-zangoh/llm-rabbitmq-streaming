@@ -4,10 +4,18 @@ services:
   rabbitmq:
     image: rabbitmq:3.9.16-management
     ports:
-      - ${RABBITMQ_QUEUE_PORT}:5672
-      - ${RABBITMQ_UI_PORT}:15672
+      - "${RABBITMQ_QUEUE_PORT}:5672"
+      - "${RABBITMQ_UI_PORT}:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  default:
+    name: shared_rabbitmq_network
+    external: true
