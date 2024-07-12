@@ -19,7 +19,7 @@ async def consume():
 async def message_stream():
     await consumer.start_consume(queue_name=os.getenv("QUEUE_NAME"))
 
-    async for value in consumer._consume(timeout=5):
+    async for value in consumer._consume(timeout=15):
         yield value
 
 if __name__ == "__main__":

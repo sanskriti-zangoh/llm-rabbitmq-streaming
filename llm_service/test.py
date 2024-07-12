@@ -10,6 +10,7 @@ import requests
 from pydantic import BaseModel
 from typing import List
 import asyncio
+import google.generativeai as genai
 
 class Part(BaseModel):
     text: str
@@ -26,6 +27,7 @@ class LLMQuery(BaseModel):
         
 
 load_dotenv(find_dotenv())
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def test1():
     llm = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
@@ -79,5 +81,11 @@ async def test7():
     async for response in llm.astream(query):
         print(response.content, end='', flush=True)
 
+async def test8():
+    google_llm = genai.GenerativeModel('gemini-1.5-flash')
+    async for chunk in await google_llm.generate_content_async("Write a cute story about cats.", stream=True):
+        if chunk.text:
+            print(chunk.text, end='', flush=True)
+
 if __name__ == "__main__":
-    asyncio.run(test7())
+    asyncio.run(test8())
