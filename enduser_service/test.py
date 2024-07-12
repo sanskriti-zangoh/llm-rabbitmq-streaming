@@ -33,6 +33,14 @@ async def test3():
     finally:
         await consumer.close()
 
+async def test4():
+    await consumer.start_consume(queue_name=os.getenv("QUEUE_NAME"))
 
-if __name__=="__main__":
-    asyncio.run(test3())
+    async for value in consumer._consume(timeout=5):
+        print(f"Consumed message: {value}")
+
+        # if value == os.getenv("STOP_SIGNAL") or value == "STOP_SIGNAL received, closing connection.":
+        #     break
+
+if __name__ == "__main__":
+    asyncio.run(test4())

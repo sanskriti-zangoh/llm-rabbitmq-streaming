@@ -1,6 +1,7 @@
 import asyncio
 from typing import AsyncGenerator
 from aio_pika import connect, IncomingMessage, Connection, Channel, Queue
+from aio_pika.exceptions import ConnectionClosed
 import os
 from dotenv import load_dotenv, find_dotenv
 
@@ -12,7 +13,6 @@ class RabbitMQClient:
         self.connection: Connection = None
         self.channel: Channel = None
         self.queue: Queue = None
-        self.consume_task: asyncio.Task = None
 
     async def connect(self):
         if not self.connection:
@@ -23,39 +23,35 @@ class RabbitMQClient:
         await self.connect()
         self.queue = await self.channel.declare_queue(queue_name)  # Declare the queue
 
-        # Start consuming messages
-        self.consume_task = asyncio.create_task(self._consume())
-
-    async def _consume(self):
+    async def _consume(self, timeout: int = 5) -> AsyncGenerator[str, None]:
         try:
-            async for message in self.queue:
-                async with message.process():
-                    decoded = message.body.decode()
-                    print(f"{decoded}")
+            while True:
+                try:
+                    message: IncomingMessage = await asyncio.wait_for(self.queue.get(), timeout)
+                    async with message.process():
+                        decoded = message.body.decode()
+                        yield decoded
 
-                    if decoded == os.getenv("STOP_SIGNAL"):
-                        print("STOP_SIGNAL received, closing connection.")
-                        await self.close()
-                        break
+                        if decoded == os.getenv("STOP_SIGNAL"):
+                            yield "STOP_SIGNAL received, closing connection."
+                            # await message.ack()
+                            # break
+                except asyncio.TimeoutError:
+                    print("No messages received. Closing connection.")
+                    break
         except Exception as e:
             print(f"An error occurred: {e}")
+        finally:
+            await self.close()
 
     async def close(self):
-        if self.consume_task:
-            self.consume_task.cancel()
-            try:
-                await self.consume_task
-            except asyncio.CancelledError:
-                pass
-            except Exception as unexpected_exception:
-                print("Unexpected exception has occurred")
-                raise {
-                    "exception": str(unexpected_exception)
-                }
         if self.connection:
-            await self.connection.close()
+            try:
+                await self.connection.close()
+            except ConnectionClosed:
+                pass
             self.connection = None
             self.channel = None
             self.queue = None
 
-consumer = RabbitMQClient(amqp_url="amqp://admin:admin@localhost:5672/")
+consumer = RabbitMQClient(amqp_url="amqp://admin:admin@rabbitmq:5672/")
