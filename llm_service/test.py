@@ -49,7 +49,7 @@ def test4():
     # curl \
     # -H 'Content-Type: application/json' \
     # -d '{"contents":[{"parts":[{"text":"Explain how AI works"}]}]}' \
-    # -X POST 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyB6oPl8Y83kfASqr1qWTffytT3PQyak528'
+    # -X POST 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=API_KEY'
     query = LLMQuery.from_string("Hello, how are you")
     google_url = "https://generativelanguage.googleapis.com/v1beta/models"
     api_key = os.getenv("GOOGLE_API_KEY")
