@@ -38,23 +38,23 @@ async def generate_llm_stream(query):
     messages = llm_stream.invoke([HumanMessage(content=query)]) 
     yield f"data: {messages.content}\n\n"
     
-def generate(query):  
-    print("generation thread started")
-    llm.invoke([HumanMessage(content=query)]) 
-    print("generation thread ended") 
+# def generate(query):  
+#     print("generation thread started")
+#     llm.invoke([HumanMessage(content=query)]) 
+#     print("generation thread ended") 
   
   
-def start_generation(query):  
-    # Creating a thread with generate function as a target  
-    thread = Thread(target=generate, kwargs={"query": query})  
-    # Starting the thread  
-    thread.start()
+# def start_generation(query):  
+#     # Creating a thread with generate function as a target  
+#     thread = Thread(target=generate, kwargs={"query": query})  
+#     # Starting the thread  
+#     thread.start()
 
-async def response_generator(query):  
-    print("response thread started")
-    # Start the generation process  
-    start_generation(query)  
-    print("response thread ended")
+# async def response_generator(query):  
+#     print("response thread started")
+#     # Start the generation process  
+#     start_generation(query)  
+#     print("response thread ended")
   
     # # Starting an infinite loop  
     # while True:  
@@ -72,3 +72,14 @@ async def response_generator(query):
     #     # guard to make sure we are not extracting anything from   
     #     # empty queue  
     #     await asyncio.sleep(0.1)
+
+
+async def generate(query):  
+    print("generation started")
+    await llm.invoke([HumanMessage(content=query)])
+    print("generation ended")
+
+async def response_generator(query):  
+    print("response thread started")
+    await generate(query)  
+    print("response thread ended")

@@ -49,3 +49,5 @@ class RabbitMQClient:
                 }
         if self.connection:
             await self.connection.close()
+
+consumer = RabbitMQClient(amqp_url="amqp://admin:admin@rabbitmq:5672/")

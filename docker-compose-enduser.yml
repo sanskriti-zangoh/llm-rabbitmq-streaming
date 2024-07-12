@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   end_user_service:
-    build: ./end_user_service
+    build: ./enduser_service
     ports:
       - "${ENDUSER_SERVICE_PORT}:5001"
     environment:
