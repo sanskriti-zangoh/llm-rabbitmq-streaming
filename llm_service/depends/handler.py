@@ -28,9 +28,7 @@ class MyCustomHandler(BaseCallbackHandler):
     async def on_llm_new_token(self, token: str, **kwargs) -> None:  
         if token:
             await self._queue.publish(queue_name=os.getenv("QUEUE_NAME"), message_content=token) 
-        else:
-            print("generation concluded")  
-            await self._queue.publish(queue_name=os.getenv("QUEUE_NAME"), message_content=self._stop_signal)
+        
   
     # on the start or initialization, we just print or log a starting message  
     async def on_llm_start( self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any ) -> None:  

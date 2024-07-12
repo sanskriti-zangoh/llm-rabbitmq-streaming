@@ -37,41 +37,6 @@ async def generate_llm(query):
 async def generate_llm_stream(query):
     messages = llm_stream.invoke([HumanMessage(content=query)]) 
     yield f"data: {messages.content}\n\n"
-    
-# def generate(query):  
-#     print("generation thread started")
-#     llm.invoke([HumanMessage(content=query)]) 
-#     print("generation thread ended") 
-  
-  
-# def start_generation(query):  
-#     # Creating a thread with generate function as a target  
-#     thread = Thread(target=generate, kwargs={"query": query})  
-#     # Starting the thread  
-#     thread.start()
-
-# async def response_generator(query):  
-#     print("response thread started")
-#     # Start the generation process  
-#     start_generation(query)  
-#     print("response thread ended")
-  
-    # # Starting an infinite loop  
-    # while True:  
-    #     # Obtain the value from the streamer queue  
-    #     value = streamer_queue.get()  
-    #     # Check for the stop signal, which is None in our case  
-    #     if value == None:  
-    #         # If stop signal is found break the loop  
-    #         break  
-    #     # Else yield the value  
-    #     yield value  
-    #     # statement to signal the queue that task is done  
-    #     streamer_queue.task_done()  
-  
-    #     # guard to make sure we are not extracting anything from   
-    #     # empty queue  
-    #     await asyncio.sleep(0.1)
 
 
 async def generate(query):  
@@ -83,3 +48,9 @@ async def response_generator(query):
     print("response thread started")
     await generate(query)  
     print("response thread ended")
+
+async def stream_response_queue(query, queue: RabbitMQProducer):  
+    message = [HumanMessage(content=query)]
+    async for response in llm_simple.astream(message):
+        await queue.publish(queue_name=os.getenv("QUEUE_NAME"), message_content=response.content)
+    await queue.publish(queue_name=os.getenv("QUEUE_NAME"), message_content=os.getenv("STOP_SIGNAL"))

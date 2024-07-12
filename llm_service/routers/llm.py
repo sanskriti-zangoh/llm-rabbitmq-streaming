@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses  import StreamingResponse
-from depends.llm import generate_llm, generate_llm_stream, response_generator
+from depends.llm import generate_llm, generate_llm_stream, stream_response_queue, generate
+from depends.producer import get_producer, RabbitMQProducer
 from schemas.llm import LLMQuery
 
 router = APIRouter(prefix="/llm", tags=["llm"])
@@ -20,10 +21,18 @@ async def stream_endpoint(query: str):
     except Exception as e:
         return {"message": str(e)}
 
+# @router.post("/streammq")
+# async def streammq_endpoint(query: LLMQuery):
+#     try: 
+#         await response_generator(query.query)
+#         return {"message": "streaming responses to the RabbitMQ queue"}
+#     except Exception as e:
+#         return {"message": str(e)}
+    
 @router.post("/streammq")
-async def streammq_endpoint(query: LLMQuery):
+async def streammq_endpoint(query: LLMQuery, streamer_queue: RabbitMQProducer = Depends(get_producer)):
     try: 
-        await response_generator(query.query)
+        await stream_response_queue(query.query, streamer_queue)
         return {"message": "streaming responses to the RabbitMQ queue"}
     except Exception as e:
-        return {"message": str(e)}
+        return {"message": str(e)}    

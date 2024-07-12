@@ -10,6 +10,6 @@ router = APIRouter(prefix="/stream", tags=["stream"])
 async def streammq_endpoint(query: LLMQuery):
     try: 
         response = requests.post("http://llm_service:5000/llm/streammq", json=query.model_dump())
-        return StreamingResponse(consume("streammq"), media_type='text/event-stream')
+        return StreamingResponse(consume(), media_type='text/event-stream')
     except Exception as e:
         return {"message": str(e)}
