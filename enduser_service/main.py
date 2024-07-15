@@ -4,6 +4,7 @@ from depends.consumer import RabbitMQClient, consumer
 from routers.stream import router as stream_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from middleware.timer import TimerMiddleware
 
 app = FastAPI()
 
@@ -24,7 +25,7 @@ async def lifespan(app: FastAPI):
 async def root():
     return {"message": "Welcome to the End User Service"}
 
-
+app.add_middleware(TimerMiddleware)
 app.include_router(stream_router)
 
 

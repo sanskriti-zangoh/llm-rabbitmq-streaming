@@ -21,3 +21,9 @@ router = APIRouter(prefix="/stream", tags=["stream"])
 async def streammq_endpoint(query: LLMQuery):
     response = requests.post("http://llm_service:5000/llm/streammq", json=query.model_dump())
     return StreamingResponse(message_stream(), media_type="text/event-stream")
+
+@router.post("/llm")
+async def stream_endpoint(query: LLMQuery):
+    response = requests.post("http://llm_service:5000/llm/stream", json=query.model_dump(), stream=True)
+    return StreamingResponse(response.iter_content(chunk_size=8192), media_type='text/event-stream')
+
